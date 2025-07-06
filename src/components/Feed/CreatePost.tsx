@@ -3,7 +3,7 @@ import { Send, Image } from 'lucide-react';
 
 interface CreatePostProps {
   onPostCreated: () => void;
-  category: 'general' | 'suggestions' | 'improvements' | 'questions';
+  category: 'general';
 }
 
 export const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, category }) => {
@@ -46,26 +46,11 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, category 
     }
   };
 
-  const getBoardInfo = () => {
-    switch (category) {
-      case 'suggestions':
-        return { name: '/s/ - Suggestions', desc: 'Share your architectural ideas and suggestions' };
-      case 'improvements':
-        return { name: '/i/ - Improvements', desc: 'Propose improvements to existing designs' };
-      case 'questions':
-        return { name: '/q/ - Questions', desc: 'Ask questions about architecture and design' };
-      default:
-        return { name: '/g/ - General', desc: 'General architecture discussion' };
-    }
-  };
-
-  const boardInfo = getBoardInfo();
-
   return (
     <div className="bg-blue-50 border border-blue-200 rounded p-4 mb-4">
       <div className="mb-3">
-        <h2 className="text-lg font-bold text-blue-800 font-mono">{boardInfo.name}</h2>
-        <p className="text-sm text-blue-600">{boardInfo.desc}</p>
+        <h2 className="text-lg font-bold text-blue-800 font-mono">/g/ - General</h2>
+        <p className="text-sm text-blue-600">General architecture discussion</p>
       </div>
 
       {!showCreatePost ? (

@@ -7,7 +7,7 @@ import { Communities } from './components/Community/Communities';
 import { Games } from './components/Games/Games';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'general' | 'suggestions' | 'improvements' | 'questions' | 'community' | 'games'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'community' | 'games'>('general');
 
   // Initialize with some sample posts if none exist
   useEffect(() => {
@@ -33,9 +33,9 @@ function App() {
         },
         {
           id: crypto.randomUUID(),
-          content: "How about we start incorporating more green roofs in urban planning? It could help with air quality and temperature regulation.",
-          author_name: "GreenArchitect",
-          category: "suggestions",
+          content: "Anyone else think modern skyscrapers are getting too generic? Every city is starting to look the same with these glass boxes.",
+          author_name: "ArchAnon",
+          category: "general",
           created_at: new Date(Date.now() - 7200000).toISOString(),
           post_number: 123456788,
           comments: []
@@ -52,9 +52,7 @@ function App() {
         <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
         
         <main className="max-w-7xl mx-auto px-4 py-6">
-          {(activeTab === 'general' || activeTab === 'suggestions' || activeTab === 'improvements' || activeTab === 'questions') && 
-            <Feed category={activeTab} />
-          }
+          {activeTab === 'general' && <Feed category="general" />}
           {activeTab === 'community' && <Communities />}
           {activeTab === 'games' && <Games />}
         </main>

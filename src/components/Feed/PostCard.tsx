@@ -51,32 +51,6 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdate }) => {
     return `${Math.floor(diffInSeconds / 86400)}d ago`;
   };
 
-  const getFlairColor = (category: string) => {
-    switch (category) {
-      case 'suggestions':
-        return 'bg-green-100 text-green-800 border-green-300';
-      case 'improvements':
-        return 'bg-blue-100 text-blue-800 border-blue-300';
-      case 'questions':
-        return 'bg-purple-100 text-purple-800 border-purple-300';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-300';
-    }
-  };
-
-  const getFlairText = (category: string) => {
-    switch (category) {
-      case 'suggestions':
-        return 'Suggestion';
-      case 'improvements':
-        return 'Improvement';
-      case 'questions':
-        return 'Question';
-      default:
-        return 'General';
-    }
-  };
-
   return (
     <div className="bg-white border border-gray-300 rounded mb-4">
       <div className="p-4">
@@ -91,11 +65,6 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdate }) => {
             <span className="text-sm text-blue-600 font-mono">
               No.{post.post_number || Math.floor(Math.random() * 999999999)}
             </span>
-            {post.category && post.category !== 'general' && (
-              <span className={`px-2 py-1 text-xs font-bold border rounded ${getFlairColor(post.category)}`}>
-                {getFlairText(post.category)}
-              </span>
-            )}
           </div>
           <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
             <MoreHorizontal className="w-4 h-4" />

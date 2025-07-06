@@ -1,17 +1,14 @@
 import React from 'react';
-import { MessageSquare, Lightbulb, TrendingUp, HelpCircle, Users, GamepadIcon } from 'lucide-react';
+import { MessageSquare, Users, GamepadIcon } from 'lucide-react';
 
 interface NavigationProps {
-  activeTab: 'general' | 'suggestions' | 'improvements' | 'questions' | 'community' | 'games';
-  onTabChange: (tab: 'general' | 'suggestions' | 'improvements' | 'questions' | 'community' | 'games') => void;
+  activeTab: 'general' | 'community' | 'games';
+  onTabChange: (tab: 'general' | 'community' | 'games') => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }) => {
   const boards = [
     { id: 'general', icon: <MessageSquare className="w-5 h-5" />, name: '/g/ - General', description: 'General Discussion' },
-    { id: 'suggestions', icon: <Lightbulb className="w-5 h-5" />, name: '/s/ - Suggestions', description: 'Ideas & Suggestions' },
-    { id: 'improvements', icon: <TrendingUp className="w-5 h-5" />, name: '/i/ - Improvements', description: 'Design Improvements' },
-    { id: 'questions', icon: <HelpCircle className="w-5 h-5" />, name: '/q/ - Questions', description: 'Questions & Help' },
     { id: 'community', icon: <Users className="w-5 h-5" />, name: '/c/ - Communities', description: 'Communities' },
     { id: 'games', icon: <GamepadIcon className="w-5 h-5" />, name: '/v/ - Games', description: 'Games & Fun' }
   ];

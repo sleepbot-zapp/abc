@@ -3,7 +3,7 @@ import { CreatePost } from './CreatePost';
 import { PostCard } from './PostCard';
 
 interface FeedProps {
-  category: 'general' | 'suggestions' | 'improvements' | 'questions';
+  category: 'general';
 }
 
 export const Feed: React.FC<FeedProps> = ({ category }) => {
@@ -13,11 +13,7 @@ export const Feed: React.FC<FeedProps> = ({ category }) => {
   const fetchPosts = () => {
     try {
       const allPosts = JSON.parse(localStorage.getItem('anon_posts') || '[]');
-      const filteredPosts = category === 'general' 
-        ? allPosts 
-        : allPosts.filter((post: any) => post.category === category);
-      
-      setPosts(filteredPosts);
+      setPosts(allPosts);
     } catch (error) {
       console.error('Error fetching posts:', error);
     } finally {
@@ -28,37 +24,6 @@ export const Feed: React.FC<FeedProps> = ({ category }) => {
   useEffect(() => {
     fetchPosts();
   }, [category]);
-
-  const getBoardInfo = () => {
-    switch (category) {
-      case 'suggestions':
-        return { 
-          name: '/s/ - Suggestions', 
-          desc: 'Share innovative architectural ideas and suggestions',
-          rules: ['Be constructive', 'No spam', 'Stay on topic']
-        };
-      case 'improvements':
-        return { 
-          name: '/i/ - Improvements', 
-          desc: 'Propose enhancements to existing designs and methodologies',
-          rules: ['Provide context', 'Be specific', 'Include examples when possible']
-        };
-      case 'questions':
-        return { 
-          name: '/q/ - Questions', 
-          desc: 'Ask questions about architecture, design, and construction',
-          rules: ['Search before posting', 'Be specific', 'Include relevant details']
-        };
-      default:
-        return { 
-          name: '/g/ - General', 
-          desc: 'General architecture discussion and random topics',
-          rules: ['Keep it civil', 'No off-topic posts', 'Respect others']
-        };
-    }
-  };
-
-  const boardInfo = getBoardInfo();
 
   if (loading) {
     return (
@@ -82,9 +47,10 @@ export const Feed: React.FC<FeedProps> = ({ category }) => {
       <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-4">
         <h3 className="font-bold text-yellow-800 font-mono text-sm mb-1">Board Rules</h3>
         <ul className="text-xs text-yellow-700 font-mono">
-          {boardInfo.rules.map((rule, index) => (
-            <li key={index}>• {rule}</li>
-          ))}
+          <li>• Keep it civil</li>
+          <li>• No off-topic posts</li>
+          <li>• Respect others</li>
+          <li>• No spam or duplicate threads</li>
         </ul>
       </div>
       
