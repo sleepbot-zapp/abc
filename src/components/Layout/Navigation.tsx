@@ -14,7 +14,7 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }
   ];
 
   return (
-    <nav className="bg-white border-b-2 border-red-600">
+    <nav className="bg-white dark:bg-gray-800 border-b-2 border-slate-800 dark:border-slate-700">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-center gap-1 py-2 overflow-x-auto">
           {boards.map((board) => (
@@ -23,8 +23,8 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }
               onClick={() => onTabChange(board.id as any)}
               className={`px-3 py-2 text-sm font-mono transition-colors whitespace-nowrap ${
                 activeTab === board.id
-                  ? 'bg-red-600 text-white'
-                  : 'text-blue-600 hover:bg-red-50 hover:text-red-600'
+                  ? 'bg-slate-800 dark:bg-slate-700 text-white'
+                  : 'text-blue-600 dark:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-white'
               }`}
               title={board.description}
             >
