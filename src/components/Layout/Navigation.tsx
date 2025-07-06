@@ -1,14 +1,15 @@
 import React from 'react';
-import { MessageSquare, GamepadIcon } from 'lucide-react';
+import { MessageSquare, GamepadIcon, Users } from 'lucide-react';
 
 interface NavigationProps {
-  activeTab: 'general' | 'games';
-  onTabChange: (tab: 'general' | 'games') => void;
+  activeTab: 'general' | 'games' | 'communities';
+  onTabChange: (tab: 'general' | 'games' | 'communities') => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }) => {
   const boards = [
     { id: 'general', icon: <MessageSquare className="w-5 h-5" />, name: '/g/ - General', description: 'General Discussion' },
+    { id: 'communities', icon: <Users className="w-5 h-5" />, name: '/c/ - Communities', description: 'Community Spaces' },
     { id: 'games', icon: <GamepadIcon className="w-5 h-5" />, name: '/v/ - Games', description: 'Games & Fun' }
   ];
 
