@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Send, Image } from 'lucide-react';
+import { Send, Image, Tag } from 'lucide-react';
 
 interface CreatePostProps {
   onPostCreated: () => void;
@@ -10,7 +10,19 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, category 
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [content, setContent] = useState('');
   const [name, setName] = useState('');
+  const [selectedFlair, setSelectedFlair] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const flairs = [
+    { id: '', label: 'No Flair', color: '' },
+    { id: 'suggestion', label: 'Suggestion', color: 'bg-blue-100 text-blue-800 border-blue-200' },
+    { id: 'improvement', label: 'Improvement', color: 'bg-green-100 text-green-800 border-green-200' },
+    { id: 'query', label: 'Query', color: 'bg-purple-100 text-purple-800 border-purple-200' },
+    { id: 'discussion', label: 'Discussion', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    { id: 'showcase', label: 'Showcase', color: 'bg-pink-100 text-pink-800 border-pink-200' },
+    { id: 'help', label: 'Help', color: 'bg-red-100 text-red-800 border-red-200' },
+    { id: 'news', label: 'News', color: 'bg-indigo-100 text-indigo-800 border-indigo-200' }
+  ];
 
   const handleCreatePost = async () => {
     if (!content.trim()) return;
@@ -23,6 +35,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, category 
         content: content.trim(),
         author_name: name.trim() || 'Anonymous',
         category,
+        flair: selectedFlair,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         likes: [],
@@ -37,6 +50,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, category 
 
       setContent('');
       setName('');
+      setSelectedFlair('');
       setShowCreatePost(false);
       onPostCreated();
     } catch (error) {
@@ -80,6 +94,29 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, category 
               placeholder="Subject (optional)"
               className="px-3 py-2 border border-gray-300 rounded font-mono text-sm focus:outline-none focus:border-blue-500"
             />
+          </div>
+
+          {/* Flair Selection */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Tag className="w-4 h-4 text-gray-500" />
+              <span className="text-sm font-mono text-gray-700">Select Flair:</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {flairs.map((flair) => (
+                <button
+                  key={flair.id}
+                  onClick={() => setSelectedFlair(flair.id)}
+                  className={`px-3 py-1 text-xs font-mono border rounded transition-all ${
+                    selectedFlair === flair.id
+                      ? flair.color || 'bg-gray-200 text-gray-800 border-gray-300'
+                      : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  {flair.label}
+                </button>
+              ))}
+            </div>
           </div>
           
           <textarea

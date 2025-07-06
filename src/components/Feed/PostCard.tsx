@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageCircle, MoreHorizontal, Quote } from 'lucide-react';
+import { MessageCircle, MoreHorizontal, Quote, Tag } from 'lucide-react';
 
 interface PostCardProps {
   post: any;
@@ -10,6 +10,48 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdate }) => {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [commentName, setCommentName] = useState('');
+
+  const getFlairStyle = (flair: string) => {
+    switch (flair) {
+      case 'suggestion':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'improvement':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'query':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'discussion':
+        return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'showcase':
+        return 'bg-pink-100 text-pink-800 border-pink-200';
+      case 'help':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'news':
+        return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+      default:
+        return '';
+    }
+  };
+
+  const getFlairLabel = (flair: string) => {
+    switch (flair) {
+      case 'suggestion':
+        return 'Suggestion';
+      case 'improvement':
+        return 'Improvement';
+      case 'query':
+        return 'Query';
+      case 'discussion':
+        return 'Discussion';
+      case 'showcase':
+        return 'Showcase';
+      case 'help':
+        return 'Help';
+      case 'news':
+        return 'News';
+      default:
+        return '';
+    }
+  };
 
   const handleComment = async () => {
     if (!newComment.trim()) return;
@@ -55,7 +97,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdate }) => {
     <div className="bg-white border border-gray-300 rounded mb-4">
       <div className="p-4">
         <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <span className="font-bold text-green-700 font-mono">
               {post.author_name || 'Anonymous'}
             </span>
@@ -65,6 +107,11 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdate }) => {
             <span className="text-sm text-blue-600 font-mono">
               No.{post.post_number || Math.floor(Math.random() * 999999999)}
             </span>
+            {post.flair && (
+              <span className={`px-2 py-1 text-xs font-mono border rounded ${getFlairStyle(post.flair)}`}>
+                {getFlairLabel(post.flair)}
+              </span>
+            )}
           </div>
           <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
             <MoreHorizontal className="w-4 h-4" />
