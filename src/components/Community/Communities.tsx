@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Users, MessageCircle, Calendar, Hash, ArrowRight } from 'lucide-react';
+import { CommunityThreads } from './CommunityThreads';
 
 interface Community {
   id: string;
@@ -151,51 +152,13 @@ export const Communities: React.FC = () => {
     }
   }, []);
 
+  // Show threads view when a community is selected
   if (selectedCommunity) {
     return (
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-blue-50 border border-blue-200 rounded p-4 mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-blue-800 font-mono mb-1">
-                /c/ - {selectedCommunity.name}
-              </h2>
-              <p className="text-blue-600 font-mono text-sm">{selectedCommunity.description}</p>
-              <div className="flex items-center gap-4 mt-2 text-xs text-blue-600 font-mono">
-                <span>{selectedCommunity.thread_count} threads</span>
-                <span>{selectedCommunity.member_count} members</span>
-                <span>Last activity {formatTimeAgo(selectedCommunity.last_activity)}</span>
-              </div>
-            </div>
-            <button
-              onClick={() => setSelectedCommunity(null)}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors font-mono text-sm"
-            >
-              ← Back to Communities
-            </button>
-          </div>
-        </div>
-
-        <div className="bg-white border border-gray-300 rounded p-8 text-center">
-          <MessageCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-gray-800 font-mono mb-2">Community Thread System</h3>
-          <p className="text-gray-600 font-mono text-sm mb-4">
-            This community space would contain specialized threads for {selectedCommunity.name}.
-            <br />
-            Users could create focused discussions within this topic area.
-          </p>
-          <div className="bg-gray-50 border border-gray-200 rounded p-4 text-left">
-            <h4 className="font-bold text-gray-800 font-mono text-sm mb-2">Example Threads:</h4>
-            <ul className="text-xs text-gray-600 font-mono space-y-1">
-              <li>• Latest {selectedCommunity.category.toLowerCase()} trends</li>
-              <li>• Project showcase and critique</li>
-              <li>• Technical discussions and Q&A</li>
-              <li>• Resource sharing and recommendations</li>
-              <li>• Industry news and updates</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      <CommunityThreads 
+        community={selectedCommunity} 
+        onBack={() => setSelectedCommunity(null)} 
+      />
     );
   }
 
