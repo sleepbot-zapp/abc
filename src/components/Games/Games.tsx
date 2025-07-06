@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { getGames, getCurrentUser, incrementGamePlays, addGameScore, Game } from '../../lib/localStorage';
 import { Target, Zap, Trophy, Play, Award, Users } from 'lucide-react';
 
 export const Games: React.FC = () => {
-  const [games, setGames] = useState<Game[]>([]);
+  const [games, setGames] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
-  const currentUser = getCurrentUser();
+  const [selectedGame, setSelectedGame] = useState<any>(null);
 
   const getGameIcon = (iconName: string) => {
     switch (iconName) {
@@ -17,14 +15,14 @@ export const Games: React.FC = () => {
       case 'trophy':
         return <Trophy className="w-8 h-8 text-amber-600" />;
       default:
-        return <Play className="w-8 h-8 text-slate-600" />;
+        return <Play className="w-8 h-8 text-gray-600" />;
     }
   };
 
   const fetchGames = () => {
     try {
-      const allGames = getGames();
-      setGames(allGames);
+      const storedGames = JSON.parse(localStorage.getItem('anon_games') || '[]');
+      setGames(storedGames);
     } catch (error) {
       console.error('Error fetching games:', error);
     } finally {
@@ -32,18 +30,30 @@ export const Games: React.FC = () => {
     }
   };
 
-  const handlePlayGame = (game: Game) => {
-    if (!currentUser) {
-      alert('Please sign in to play games');
-      return;
-    }
-
+  const handlePlayGame = (game: any) => {
     try {
-      incrementGamePlays(game.id);
-      
       // Simulate game play with random score
       const randomScore = Math.floor(Math.random() * 1000) + 100;
-      addGameScore(game.id, currentUser.id, randomScore);
+      const playerName = prompt('Enter your name (optional):') || 'Anonymous';
+      
+      const score = {
+        id: crypto.randomUUID(),
+        player_name: playerName,
+        score: randomScore,
+        created_at: new Date().toISOString()
+      };
+
+      // Update localStorage
+      const games = JSON.parse(localStorage.getItem('anon_games') || '[]');
+      const gameIndex = games.findIndex((g: any) => g.id === game.id);
+      if (gameIndex >= 0) {
+        games[gameIndex].plays_count += 1;
+        if (!games[gameIndex].high_scores) games[gameIndex].high_scores = [];
+        games[gameIndex].high_scores.push(score);
+        games[gameIndex].high_scores.sort((a: any, b: any) => b.score - a.score);
+        games[gameIndex].high_scores = games[gameIndex].high_scores.slice(0, 10);
+        localStorage.setItem('anon_games', JSON.stringify(games));
+      }
       
       alert(`Game completed! Your score: ${randomScore} points`);
       fetchGames();
@@ -52,12 +62,52 @@ export const Games: React.FC = () => {
     }
   };
 
-  const showLeaderboard = (game: Game) => {
+  const showLeaderboard = (game: any) => {
     setSelectedGame(game);
   };
 
   useEffect(() => {
     fetchGames();
+    
+    // Initialize with sample games if none exist
+    const existingGames = localStorage.getItem('anon_games');
+    if (!existingGames) {
+      const sampleGames = [
+        {
+          id: crypto.randomUUID(),
+          name: "Blueprint Challenge",
+          description: "Test your architectural knowledge with design challenges",
+          icon_name: "target",
+          plays_count: 1250,
+          high_scores: [
+            { id: '1', player_name: 'Anonymous', score: 950, created_at: new Date().toISOString() },
+            { id: '2', player_name: 'ArchMaster', score: 890, created_at: new Date().toISOString() }
+          ]
+        },
+        {
+          id: crypto.randomUUID(),
+          name: "Structure Builder",
+          description: "Build stable structures with limited materials",
+          icon_name: "zap",
+          plays_count: 892,
+          high_scores: [
+            { id: '1', player_name: 'BuilderAnon', score: 1200, created_at: new Date().toISOString() }
+          ]
+        },
+        {
+          id: crypto.randomUUID(),
+          name: "Design Quiz",
+          description: "Quiz on architectural history and famous buildings",
+          icon_name: "trophy",
+          plays_count: 2103,
+          high_scores: [
+            { id: '1', player_name: 'QuizMaster', score: 800, created_at: new Date().toISOString() }
+          ]
+        }
+      ];
+      localStorage.setItem('anon_games', JSON.stringify(sampleGames));
+      setGames(sampleGames);
+    }
   }, []);
 
   if (loading) {
@@ -65,11 +115,11 @@ export const Games: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map(i => (
-            <div key={i} className="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-slate-200 p-6 animate-pulse">
-              <div className="h-16 bg-slate-200 rounded mb-4"></div>
-              <div className="h-6 bg-slate-200 rounded mb-2"></div>
-              <div className="h-4 bg-slate-200 rounded mb-6"></div>
-              <div className="h-12 bg-slate-200 rounded"></div>
+            <div key={i} className="bg-white border border-gray-300 rounded p-6 animate-pulse">
+              <div className="h-16 bg-gray-200 rounded mb-4"></div>
+              <div className="h-6 bg-gray-200 rounded mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded mb-6"></div>
+              <div className="h-12 bg-gray-200 rounded"></div>
             </div>
           ))}
         </div>
@@ -79,34 +129,37 @@ export const Games: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-slate-900 mb-2">Architectural Games</h2>
-        <p className="text-slate-600">Challenge yourself with architecture-themed games and puzzles</p>
+      <div className="bg-blue-50 border border-blue-200 rounded p-4 mb-6">
+        <h2 className="text-2xl font-bold text-blue-800 font-mono mb-1">/v/ - Games</h2>
+        <p className="text-blue-600 font-mono text-sm">Architecture-themed games and challenges</p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {games.map((game) => (
-          <div key={game.id} className="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-shadow">
+          <div key={game.id} className="bg-white border border-gray-300 rounded p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 bg-gradient-to-r from-slate-100 to-slate-200 rounded-xl flex items-center justify-center">
+              <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
                 {getGameIcon(game.icon_name)}
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-slate-900">{game.name}</h3>
-                <p className="text-sm text-slate-500">{game.plays_count} plays</p>
+                <h3 className="text-lg font-bold text-gray-800 font-mono">{game.name}</h3>
+                <p className="text-sm text-gray-500 font-mono">{game.plays_count} plays</p>
               </div>
             </div>
             
-            <p className="text-slate-600 mb-4">{game.description}</p>
+            <p className="text-gray-600 mb-4 font-mono text-sm">{game.description}</p>
             
-            {game.high_scores.length > 0 && (
-              <div className="mb-4 p-3 bg-slate-50 rounded-lg">
+            {game.high_scores && game.high_scores.length > 0 && (
+              <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded">
                 <div className="flex items-center gap-2 mb-2">
                   <Award className="w-4 h-4 text-amber-500" />
-                  <span className="text-sm font-medium text-slate-700">High Score</span>
+                  <span className="text-sm font-bold text-gray-700 font-mono">High Score</span>
                 </div>
-                <p className="text-lg font-bold text-slate-900">
+                <p className="text-lg font-bold text-gray-900 font-mono">
                   {game.high_scores[0]?.score.toLocaleString()} points
+                </p>
+                <p className="text-xs text-gray-500 font-mono">
+                  by {game.high_scores[0]?.player_name}
                 </p>
               </div>
             )}
@@ -114,19 +167,14 @@ export const Games: React.FC = () => {
             <div className="flex gap-2">
               <button
                 onClick={() => handlePlayGame(game)}
-                disabled={!currentUser}
-                className={`flex-1 py-3 rounded-lg font-medium transition-all ${
-                  currentUser
-                    ? 'bg-gradient-to-r from-slate-700 to-slate-900 text-white hover:from-slate-800 hover:to-slate-950'
-                    : 'bg-slate-300 text-slate-500 cursor-not-allowed'
-                }`}
+                className="flex-1 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors font-mono text-sm"
               >
-                {currentUser ? 'Play Now' : 'Sign in to Play'}
+                Play Now
               </button>
-              {game.high_scores.length > 0 && (
+              {game.high_scores && game.high_scores.length > 0 && (
                 <button
                   onClick={() => showLeaderboard(game)}
-                  className="px-4 py-3 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
+                  className="px-4 py-3 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
                 >
                   <Users className="w-4 h-4" />
                 </button>
@@ -136,45 +184,45 @@ export const Games: React.FC = () => {
         ))}
         
         {games.length === 0 && (
-          <div className="col-span-full bg-white/90 backdrop-blur-md rounded-2xl p-8 shadow-lg border border-slate-200 text-center">
-            <Play className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-            <p className="text-slate-500">No games available yet. Check back soon!</p>
+          <div className="col-span-full bg-white border border-gray-300 rounded p-8 text-center">
+            <Play className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500 font-mono">No games available yet. Check back soon!</p>
           </div>
         )}
       </div>
 
       {selectedGame && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full max-h-96 overflow-y-auto">
+          <div className="bg-white border border-gray-300 rounded p-6 max-w-md w-full max-h-96 overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-900">
+              <h3 className="text-lg font-bold text-gray-800 font-mono">
                 {selectedGame.name} Leaderboard
               </h3>
               <button
                 onClick={() => setSelectedGame(null)}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-gray-400 hover:text-gray-600 font-mono text-xl"
               >
                 ×
               </button>
             </div>
             
             <div className="space-y-3">
-              {selectedGame.high_scores.map((score, index) => (
-                <div key={score.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+              {selectedGame.high_scores.map((score: any, index: number) => (
+                <div key={score.id} className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded">
                   <div className="flex items-center gap-3">
-                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold font-mono ${
                       index === 0 ? 'bg-amber-500 text-white' :
-                      index === 1 ? 'bg-slate-400 text-white' :
+                      index === 1 ? 'bg-gray-400 text-white' :
                       index === 2 ? 'bg-amber-600 text-white' :
-                      'bg-slate-200 text-slate-600'
+                      'bg-gray-200 text-gray-600'
                     }`}>
                       {index + 1}
                     </span>
-                    <span className="font-medium text-slate-900">
-                      Player {score.user_id.slice(0, 8)}
+                    <span className="font-bold text-gray-900 font-mono">
+                      {score.player_name}
                     </span>
                   </div>
-                  <span className="font-bold text-slate-900">
+                  <span className="font-bold text-gray-900 font-mono">
                     {score.score.toLocaleString()}
                   </span>
                 </div>

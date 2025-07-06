@@ -1,263 +1,129 @@
 import React, { useState } from 'react';
-import { Plus, Image, Send, User, LogIn, Building2 } from 'lucide-react';
-import { getCurrentUser, createUser, signIn, createPost } from '../../lib/localStorage';
+import { Send, Image } from 'lucide-react';
 
 interface CreatePostProps {
   onPostCreated: () => void;
-  category: 'feed' | 'suggestion' | 'improvement' | 'question';
+  category: 'general' | 'suggestions' | 'improvements' | 'questions';
 }
 
 export const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, category }) => {
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [content, setContent] = useState('');
-  const [tags, setTags] = useState('');
+  const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState(getCurrentUser());
-  const [showAuth, setShowAuth] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [profession, setProfession] = useState('');
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [authLoading, setAuthLoading] = useState(false);
-
-  const handleAuth = async () => {
-    if (!email.trim() || !password.trim()) return;
-
-    setAuthLoading(true);
-    try {
-      if (isSignUp) {
-        if (!fullName.trim()) {
-          alert('Please enter your full name');
-          return;
-        }
-
-        const newUser = createUser({
-          username: email.split('@')[0] || 'user',
-          full_name: fullName.trim(),
-          email: email.trim(),
-          profession: profession.trim() || 'Architect'
-        });
-
-        setUser(newUser);
-      } else {
-        const signedInUser = signIn(email.trim(), password.trim());
-        if (!signedInUser) {
-          alert('Invalid email or password');
-          return;
-        }
-        setUser(signedInUser);
-      }
-
-      setEmail('');
-      setPassword('');
-      setFullName('');
-      setProfession('');
-      setShowAuth(false);
-    } catch (error) {
-      console.error('Auth error:', error);
-      alert('Authentication failed');
-    } finally {
-      setAuthLoading(false);
-    }
-  };
 
   const handleCreatePost = async () => {
-    if (!content.trim() || !user) return;
+    if (!content.trim()) return;
 
     setLoading(true);
     try {
-      const tagArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
-      
-      createPost({
-        user_id: user.id,
+      // Simulate post creation with anonymous data
+      const newPost = {
+        id: crypto.randomUUID(),
         content: content.trim(),
+        author_name: name.trim() || 'Anonymous',
         category,
-        tags: tagArray
-      });
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        likes: [],
+        comments: [],
+        post_number: Math.floor(Math.random() * 999999999) + 100000000
+      };
+
+      // Store in localStorage for demo
+      const posts = JSON.parse(localStorage.getItem('anon_posts') || '[]');
+      posts.unshift(newPost);
+      localStorage.setItem('anon_posts', JSON.stringify(posts));
 
       setContent('');
-      setTags('');
+      setName('');
       setShowCreatePost(false);
       onPostCreated();
     } catch (error) {
       console.error('Error creating post:', error);
-      alert('Failed to create post. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const getCategoryPlaceholder = () => {
+  const getBoardInfo = () => {
     switch (category) {
-      case 'suggestion':
-        return 'Share your architectural suggestions and ideas...';
-      case 'improvement':
-        return 'Propose improvements to existing designs or processes...';
-      case 'question':
-        return 'Ask questions about architecture, design, or construction...';
+      case 'suggestions':
+        return { name: '/s/ - Suggestions', desc: 'Share your architectural ideas and suggestions' };
+      case 'improvements':
+        return { name: '/i/ - Improvements', desc: 'Propose improvements to existing designs' };
+      case 'questions':
+        return { name: '/q/ - Questions', desc: 'Ask questions about architecture and design' };
       default:
-        return 'Share your thoughts with the community...';
+        return { name: '/g/ - General', desc: 'General architecture discussion' };
     }
   };
 
-  const getCategoryTitle = () => {
-    switch (category) {
-      case 'suggestion':
-        return 'Share a Suggestion';
-      case 'improvement':
-        return 'Propose an Improvement';
-      case 'question':
-        return 'Ask a Question';
-      default:
-        return 'Create a Post';
-    }
-  };
-
-  if (!user) {
-    return (
-      <div className="bg-white/90 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-slate-200">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Building2 className="w-8 h-8 text-slate-600" />
-          </div>
-          <h3 className="text-lg font-semibold text-slate-800 mb-2">Join Architect's Society</h3>
-          <p className="text-slate-600 mb-4">Connect with fellow architects and share your expertise.</p>
-          
-          {!showAuth ? (
-            <button
-              onClick={() => setShowAuth(true)}
-              className="px-6 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-900 transition-colors"
-            >
-              Get Started
-            </button>
-          ) : (
-            <div className="space-y-4 max-w-sm mx-auto">
-              <div className="flex gap-2 mb-4">
-                <button
-                  onClick={() => setIsSignUp(false)}
-                  className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
-                    !isSignUp 
-                      ? 'bg-slate-800 text-white' 
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  Sign In
-                </button>
-                <button
-                  onClick={() => setIsSignUp(true)}
-                  className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
-                    isSignUp 
-                      ? 'bg-slate-800 text-white' 
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  Sign Up
-                </button>
-              </div>
-              
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
-              />
-              
-              {isSignUp && (
-                <>
-                  <input
-                    type="text"
-                    placeholder="Full Name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Profession (e.g., Architect, Urban Planner)"
-                    value={profession}
-                    onChange={(e) => setProfession(e.target.value)}
-                    className="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
-                  />
-                </>
-              )}
-              
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setShowAuth(false)}
-                  className="flex-1 py-2 px-4 text-slate-600 hover:text-slate-800 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleAuth}
-                  disabled={authLoading || !email.trim() || !password.trim() || (isSignUp && !fullName.trim())}
-                  className="flex-1 py-2 px-4 bg-slate-800 text-white rounded-lg hover:bg-slate-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {authLoading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Sign In')}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
+  const boardInfo = getBoardInfo();
 
   return (
-    <div className="bg-white/90 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-slate-200">
-      <div className="flex items-center gap-4 mb-4">
-        <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
-          <User className="w-6 h-6 text-slate-600" />
-        </div>
+    <div className="bg-blue-50 border border-blue-200 rounded p-4 mb-4">
+      <div className="mb-3">
+        <h2 className="text-lg font-bold text-blue-800 font-mono">{boardInfo.name}</h2>
+        <p className="text-sm text-blue-600">{boardInfo.desc}</p>
+      </div>
+
+      {!showCreatePost ? (
         <button
           onClick={() => setShowCreatePost(true)}
-          className="flex-1 text-left px-4 py-3 bg-slate-50 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors"
+          className="w-full p-3 bg-white border border-gray-300 rounded text-left text-gray-500 hover:bg-gray-50 transition-colors font-mono"
         >
-          {getCategoryPlaceholder()}
+          Start a new thread...
         </button>
-      </div>
-      
-      {showCreatePost && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-slate-800">{getCategoryTitle()}</h3>
+      ) : (
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <input
+              type="text"
+              placeholder="Name (optional)"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded font-mono text-sm focus:outline-none focus:border-blue-500"
+            />
+            <input
+              type="email"
+              placeholder="Email (optional)"
+              className="px-3 py-2 border border-gray-300 rounded font-mono text-sm focus:outline-none focus:border-blue-500"
+            />
+            <input
+              type="text"
+              placeholder="Subject (optional)"
+              className="px-3 py-2 border border-gray-300 rounded font-mono text-sm focus:outline-none focus:border-blue-500"
+            />
+          </div>
+          
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder={getCategoryPlaceholder()}
-            className="w-full h-32 p-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-500 resize-none"
+            placeholder="Comment"
+            className="w-full h-32 p-3 border border-gray-300 rounded font-mono text-sm focus:outline-none focus:border-blue-500 resize-none"
           />
-          <input
-            type="text"
-            placeholder="Tags (comma-separated, e.g., sustainable, modern, residential)"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-            className="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
-          />
+          
           <div className="flex justify-between items-center">
-            <button className="flex items-center gap-2 text-slate-500 hover:text-slate-700 transition-colors">
-              <Image className="w-4 h-4" />
-              Add Image
-            </button>
+            <div className="flex gap-2">
+              <button className="flex items-center gap-1 px-3 py-1 bg-gray-100 border border-gray-300 rounded text-sm hover:bg-gray-200 transition-colors">
+                <Image className="w-4 h-4" />
+                Choose File
+              </button>
+              <span className="text-xs text-gray-500 self-center">No file chosen</span>
+            </div>
+            
             <div className="flex gap-2">
               <button
                 onClick={() => setShowCreatePost(false)}
-                className="px-4 py-2 text-slate-600 hover:text-slate-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-mono text-sm"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreatePost}
                 disabled={loading || !content.trim()}
-                className="flex items-center gap-2 px-6 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-mono text-sm"
               >
                 <Send className="w-4 h-4" />
                 {loading ? 'Posting...' : 'Post'}

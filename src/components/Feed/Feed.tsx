@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { getPosts, Post } from '../../lib/localStorage';
 import { CreatePost } from './CreatePost';
 import { PostCard } from './PostCard';
 
 interface FeedProps {
-  category: 'feed' | 'suggestion' | 'improvement' | 'question';
+  category: 'general' | 'suggestions' | 'improvements' | 'questions';
 }
 
 export const Feed: React.FC<FeedProps> = ({ category }) => {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchPosts = () => {
     try {
-      const allPosts = getPosts();
-      const filteredPosts = category === 'feed' 
+      const allPosts = JSON.parse(localStorage.getItem('anon_posts') || '[]');
+      const filteredPosts = category === 'general' 
         ? allPosts 
-        : allPosts.filter(post => post.category === category);
+        : allPosts.filter((post: any) => post.category === category);
       
       setPosts(filteredPosts);
     } catch (error) {
@@ -30,41 +29,46 @@ export const Feed: React.FC<FeedProps> = ({ category }) => {
     fetchPosts();
   }, [category]);
 
-  const getCategoryTitle = () => {
+  const getBoardInfo = () => {
     switch (category) {
-      case 'suggestion':
-        return 'Architectural Suggestions';
-      case 'improvement':
-        return 'Design Improvements';
-      case 'question':
-        return 'Questions & Discussions';
+      case 'suggestions':
+        return { 
+          name: '/s/ - Suggestions', 
+          desc: 'Share innovative architectural ideas and suggestions',
+          rules: ['Be constructive', 'No spam', 'Stay on topic']
+        };
+      case 'improvements':
+        return { 
+          name: '/i/ - Improvements', 
+          desc: 'Propose enhancements to existing designs and methodologies',
+          rules: ['Provide context', 'Be specific', 'Include examples when possible']
+        };
+      case 'questions':
+        return { 
+          name: '/q/ - Questions', 
+          desc: 'Ask questions about architecture, design, and construction',
+          rules: ['Search before posting', 'Be specific', 'Include relevant details']
+        };
       default:
-        return 'Community Feed';
+        return { 
+          name: '/g/ - General', 
+          desc: 'General architecture discussion and random topics',
+          rules: ['Keep it civil', 'No off-topic posts', 'Respect others']
+        };
     }
   };
 
-  const getCategoryDescription = () => {
-    switch (category) {
-      case 'suggestion':
-        return 'Share innovative ideas and suggestions for architectural projects';
-      case 'improvement':
-        return 'Propose enhancements to existing designs and methodologies';
-      case 'question':
-        return 'Ask questions and engage in architectural discussions';
-      default:
-        return 'Latest posts from the architectural community';
-    }
-  };
+  const boardInfo = getBoardInfo();
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto space-y-8">
-        <div className="bg-white/90 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-slate-200 animate-pulse">
-          <div className="h-20 bg-slate-200 rounded"></div>
+      <div className="max-w-4xl mx-auto space-y-4">
+        <div className="bg-blue-50 border border-blue-200 rounded p-4 animate-pulse">
+          <div className="h-20 bg-blue-100 rounded"></div>
         </div>
         {[1, 2, 3].map(i => (
-          <div key={i} className="bg-white/90 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-slate-200 animate-pulse">
-            <div className="h-32 bg-slate-200 rounded"></div>
+          <div key={i} className="bg-white border border-gray-300 rounded p-4 animate-pulse">
+            <div className="h-32 bg-gray-100 rounded"></div>
           </div>
         ))}
       </div>
@@ -72,21 +76,22 @@ export const Feed: React.FC<FeedProps> = ({ category }) => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">{getCategoryTitle()}</h2>
-        <p className="text-slate-600">{getCategoryDescription()}</p>
-      </div>
-
+    <div className="max-w-4xl mx-auto">
       <CreatePost onPostCreated={fetchPosts} category={category} />
       
+      <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-4">
+        <h3 className="font-bold text-yellow-800 font-mono text-sm mb-1">Board Rules</h3>
+        <ul className="text-xs text-yellow-700 font-mono">
+          {boardInfo.rules.map((rule, index) => (
+            <li key={index}>• {rule}</li>
+          ))}
+        </ul>
+      </div>
+      
       {posts.length === 0 ? (
-        <div className="bg-white/90 backdrop-blur-md rounded-2xl p-8 shadow-lg border border-slate-200 text-center">
-          <p className="text-slate-500">
-            {category === 'feed' 
-              ? 'No posts yet. Be the first to share something!' 
-              : `No ${category}s yet. Be the first to contribute!`
-            }
+        <div className="bg-white border border-gray-300 rounded p-8 text-center">
+          <p className="text-gray-500 font-mono">
+            No threads yet. Be the first to post!
           </p>
         </div>
       ) : (
